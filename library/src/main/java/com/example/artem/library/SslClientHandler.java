@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
-public abstract class SslClientHandler extends ChannelInboundHandlerAdapter {
+public abstract class SslClientHandler<T extends Message> extends ChannelInboundHandlerAdapter implements SocketExceptionHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -15,7 +15,7 @@ public abstract class SslClientHandler extends ChannelInboundHandlerAdapter {
                 SocketNetworkService.INPUT_QUEUE.add(convertByteBuffToMessage(in));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            onException(e);
         } finally {
             ReferenceCountUtil.release(msg);
         }
@@ -23,8 +23,8 @@ public abstract class SslClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
+        onException(cause);
     }
 
-    protected abstract Message convertByteBuffToMessage(ByteBuf in);
+    protected abstract T convertByteBuffToMessage(ByteBuf in);
 }

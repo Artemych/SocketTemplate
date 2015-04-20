@@ -18,6 +18,7 @@ public class SslSocketClient extends Thread {
     private SSLEngine mSslEngine;
     private ChannelFutureListener mChannelFutureListener;
     private SslClientHandler mSslClientHandler;
+    private SocketExceptionHandler mSocketExceptionHandler;
 
     private SslSocketClient() {}
 
@@ -45,6 +46,9 @@ public class SslSocketClient extends Thread {
 
         } catch (Exception e) {
             e.printStackTrace();
+            if (mSocketExceptionHandler != null) {
+                mSocketExceptionHandler.onException(e);
+            }
         } finally {
             group.shutdownGracefully();
         }
@@ -81,6 +85,11 @@ public class SslSocketClient extends Thread {
 
         public Builder setClientHandler(SslClientHandler sslClientHandler) {
             mSslClientHandler = sslClientHandler;
+            return this;
+        }
+
+        public Builder setSocketExceptionHandler(SocketExceptionHandler socketExceptionHandler) {
+            mSocketExceptionHandler = socketExceptionHandler;
             return this;
         }
 
